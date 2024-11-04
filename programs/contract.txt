@@ -1,3 +1,30 @@
+PATH=Xargo.toml
+[target.bpfel-unknown-unknown.dependencies.std]
+features = []
+
+PATH=Cargo.toml
+[package]
+name = "swap-to-sol"
+version = "0.1.0"
+description = "Created with Anchor"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "swap_to_sol"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.27.0"
+anchor-spl = "0.27.0"
+spl-token = "3.3.1"
+PATH=src/lib.rs
 use anchor_lang::{
     prelude::*,
     solana_program::{entrypoint::ProgramResult, instruction::Instruction, program::invoke_signed},
@@ -36,8 +63,8 @@ pub mod swap_to_sol {
     use super::*;
 
     pub fn swap_to_sol(ctx: Context<SwapToSOL>, data: Vec<u8>) -> Result<()> {
-        let authority_bump = ctx.bumps.program_authority.to_le_bytes();
-        let wsol_bump = ctx.bumps.program_wsol_account.to_le_bytes();
+        let authority_bump = ctx.bumps.get("program_authority").unwrap().to_le_bytes();
+        let wsol_bump = ctx.bumps.get("program_wsol_account").unwrap().to_le_bytes();
 
         create_wsol_token_idempotent(
             ctx.accounts.program_authority.clone(),
@@ -229,3 +256,4 @@ pub struct SOLToSwap<'info> {
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
 }
+
